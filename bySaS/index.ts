@@ -77,7 +77,7 @@ function generateSasKeyForClient(
   return blobClient.generateSasUrl({
     startsOn: startDate,
     expiresOn: expiresDate,
-    ipRange: { start: inboundIp, end: inboundIp },
+    //ipRange: { start: inboundIp, end: inboundIp },
     permissions: BlobSASPermissions.parse("w"),
   });
 }
