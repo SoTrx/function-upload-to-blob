@@ -1,0 +1,25 @@
+{
+  "bindings": [
+    {
+      "authLevel": "function",
+      "type": "httpTrigger",
+      "direction": "in",
+      "name": "req",
+      "dataType": "binary",
+      "methods": ["post"]
+    },
+    {
+      "direction": "out",
+      "name": "$return",
+      "type": "http"
+    },
+    {
+      "name": "storage",
+      "type": "blob",
+      "path": "inputs/{filename}",
+      "direction": "out",
+      "connection": "BlobStorageQS"
+    }
+  ],
+  "scriptFile": "../dist/byUrl/index.js"
+}
