@@ -16,7 +16,7 @@
     {
       "name": "storage",
       "type": "blob",
-      "path": "inputs/{filename}",
+      "path": "%InputContainer%/{filename}",
       "direction": "out",
       "connection": "BlobStorageQS"
     }

@@ -12,6 +12,8 @@ import {
   BlobServiceClient,
 } from "@azure/storage-blob";
 import { v4 as uuidv4 } from "uuid";
+import HTTP_CODES from "http-status-enum";
+import { formatReply } from "../common/index";
 
 export default async function httpTrigger(
   context: Context,
@@ -20,18 +22,19 @@ export default async function httpTrigger(
   context.log("HTTP trigger function processed a request.");
 
   const filename = req.query?.filename;
-  if (!filename) return formatReply(`Filename is not defined`, 400);
+  if (!filename)
+    return formatReply(`Filename is not defined`, HTTP_CODES.BAD_REQUEST);
   const inboundIp = req.headers["x-forwarded-for"];
   if (!inboundIp) {
-    context.log.error(`Couldn't retrive inbound ip. Headers dump :`);
+    context.log.error(`Couldn't retrieve inbound ip. Headers dump :`);
     context.log.error(req.headers);
-    return formatReply(`Malformed request`, 422);
+    return formatReply(`Malformed request`, HTTP_CODES.UNPROCESSABLE_ENTITY);
   }
 
   context.log.verbose(
     `Blob Storage QS is ${env.BlobStorageQS}. Input container is ${env.InputContainer}`
   );
-  const blobClient = getBlobClient(
+  const blobClient = await getBlobClient(
     env.BlobStorageQS,
     env.InputContainer,
     filename
@@ -43,14 +46,14 @@ export default async function httpTrigger(
       containerName: env.InputContainer,
       filename: filename,
     });
-    return formatReply(`Unexpected error.`, 500);
+    return formatReply(`Unexpected error.`, HTTP_CODES.INTERNAL_SERVER_ERROR);
   }
   // @TODO: A "file count by ip" limit could be implemented
   const sasKey = await generateSasKeyForClient(blobClient, inboundIp);
   context.log.info(
     `Successfully generated SAS key for file ${filename} and ip ${inboundIp}`
   );
-  return { status: 200, body: JSON.stringify({ key: sasKey }) };
+  return formatReply(JSON.stringify({ key: sasKey }));
 }
 
 /**
@@ -66,7 +69,7 @@ function generateSasKeyForClient(
   hours = 24
 ): Promise<string> {
   // Set start date to five minutes ago, to avoid some clock drifting shenaningans
-  let startDate = new Date();
+  const startDate = new Date();
   startDate.setMinutes(startDate.getMinutes() - 5);
   // Give a x hours access to upload the blob.
   const expiresDate = new Date(
@@ -78,6 +81,7 @@ function generateSasKeyForClient(
     startsOn: startDate,
     expiresOn: expiresDate,
     //ipRange: { start: inboundIp, end: inboundIp },
+    // Only allow the client to write to the Blob, not to read or list the container.
     permissions: BlobSASPermissions.parse("w"),
   });
 }
@@ -88,25 +92,13 @@ function generateSasKeyForClient(
  * @param filePrefix Optional blobname prefix. An uuid is concatenated to the end of the filename in any case
  * @returns BlobClient
  */
-function getBlobClient(
+async function getBlobClient(
   storageQs: string,
   containerName: string,
   filePrefix?: string
-): BlobClient {
+): Promise<BlobClient> {
   const blobServiceClient = BlobServiceClient.fromConnectionString(storageQs);
   const containerClient = blobServiceClient.getContainerClient(containerName);
+  await containerClient.createIfNotExists();
   return containerClient.getBlobClient(`${filePrefix ?? ""}-${uuidv4()}`);
-}
-
-/**
- * Use a message
- * @param message
- * @param statusCode
- * @returns
- */
-function formatReply(message: string, statusCode = 200) {
-  return {
-    status: statusCode,
-    body: message,
-  };
 }

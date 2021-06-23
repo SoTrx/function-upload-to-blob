@@ -1,4 +1,4 @@
-/** These tests must be runned while the local function emulator is alive */
+/** These tests must be run while the local function emulator is alive */
 import * as FormData from "form-data";
 import { createReadStream } from "fs";
 import { join } from "path";

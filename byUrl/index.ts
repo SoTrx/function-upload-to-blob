@@ -5,15 +5,18 @@
 
 import { Context, HttpRequest } from "@azure/functions";
 import * as multipart from "parse-multipart";
+import { formatReply } from "../common/index";
+import HTTP_CODES from "http-status-enum";
 
 export default async function httpTrigger(
   context: Context,
   req: HttpRequest
 ): Promise<any> {
   // Check for required parameters. A filename must be provided to write to the Blob Storage
-  if (!req.query?.filename) return formatReply(`Filename is not defined`, 400);
+  if (!req.query?.filename)
+    return formatReply(`Filename is not defined`, HTTP_CODES.BAD_REQUEST);
   if (!req.body || !req.body.length)
-    return formatReply(`Request body is not defined`, 400);
+    return formatReply(`Request body is not defined`, HTTP_CODES.BAD_REQUEST);
 
   try {
     // Each chunk of the file is delimited by a special string
@@ -21,23 +24,11 @@ export default async function httpTrigger(
     const boundary = multipart.getBoundary(req.headers["content-type"]);
     const parts = multipart.Parse(bodyBuffer, boundary);
 
+    // Actual upload, using an output binding
     context.bindings.storage = parts[0].data;
   } catch (err) {
     context.log.error(err.message);
-    return formatReply(err.message, 500);
+    return formatReply(err.message, HTTP_CODES.INTERNAL_SERVER_ERROR);
   }
   return formatReply("OK");
-}
-
-/**
- * Use a message
- * @param message
- * @param statusCode
- * @returns
- */
-function formatReply(message: string, statusCode = 200) {
-  return {
-    status: statusCode,
-    body: message,
-  };
 }
