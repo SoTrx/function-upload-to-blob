@@ -21,7 +21,7 @@ jobs:
           npm run build
           rm .gitignore
           mkdir build
-          mv * build/
+          mv -f * build/
           git add .
       - name: Push
         uses: s0/git-publish-subdir-action@develop
