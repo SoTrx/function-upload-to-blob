@@ -19,7 +19,7 @@ jobs:
         uses: mr-smithers-excellent/docker-build-push@v4
         with:
           registry: docker.io
-          image: dockerutils/pypdftojpg
+          image: dockerutils/function-upload-to-blob
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
           tag: ${{ steps.vars.outputs.short_ref }}
