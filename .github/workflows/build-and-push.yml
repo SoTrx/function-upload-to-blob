@@ -17,13 +17,16 @@ jobs:
         run: npm install
 
       - name: Build
-        run: npm run build
-
+        run: |
+          npm run build
+          rm .gitignore
+          mkdir build
+          mv * build/
+          git add .
       - name: Push
         uses: s0/git-publish-subdir-action@develop
         env:
           REPO: self
           BRANCH: build
-          FOLDER: .
+          FOLDER: build
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          MESSAGE: "Build: ({sha}) {msg}"
