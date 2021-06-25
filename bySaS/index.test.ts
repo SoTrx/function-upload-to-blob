@@ -1,7 +1,6 @@
 import func from "./index";
 import { Context, HttpRequest } from "@azure/functions";
 import { Substitute } from "@fluffy-spoon/substitute";
-import * as localSettings from "../local.settings.json";
 import { env } from "process";
 // Manually load up env variables, as the func runtime would
 //require("dotenv-safe").config();

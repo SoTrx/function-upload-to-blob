@@ -20,11 +20,11 @@ jobs:
       - name: Package app
         run: npm run build
       - run: npm install -g azurite
-      - shell: bash
-        run: azurite-blob &
       - name: Coverage
+        shell : bash
         env:
           TOKEN: ${{ secrets.CODECOV_TOKEN }}
         run : |
+          azurite --silent &
           yarn test --coverage
           bash <(curl -s https://codecov.io/bash) -t ${TOKEN}
