@@ -23,7 +23,6 @@ describe("Should handle common errors gracefully", () => {
   });
 });
 
-
 describe("Should handle tricky scenarios", () => {
   it("Corrupted file", async () => {
     // Purposefully mismatching form definition and actual body.
@@ -32,7 +31,7 @@ describe("Should handle tricky scenarios", () => {
       "test",
       await promises.readFile(join(__dirname, "../assets/hey.png"))
     );
-    const bodyBuffer = readFileSync(join(__dirname,"../assets/body-dump.dat"));
+    const bodyBuffer = readFileSync(join(__dirname, "../assets/body-dump.dat"));
     const [context, request] = formatUploadRequest(
       "test",
       bodyBuffer,
@@ -40,6 +39,25 @@ describe("Should handle tricky scenarios", () => {
     );
     const response = await func(context, request);
     expect(response.status).toBe(400);
+  }, 20000);
+
+  it("Unrecoverable error", async () => {
+    const form = new FormData();
+    form.append(
+      "test",
+      await promises.readFile(join(__dirname, "../assets/hey.png"))
+    );
+    // This is a weird one. Although we form definition and actual body are 
+    // matching, form.getBuffer() doesn't add any separator, even if a
+    // separator is specified in the header. This is an "everything breaks"
+    // scenario.
+    const [context, request] = formatUploadRequest(
+      "test",
+      form.getBuffer(),
+      form.getHeaders()
+    );
+    const response = await func(context, request);
+    expect(response.status).toBe(500);
   }, 20000);
 });
 
