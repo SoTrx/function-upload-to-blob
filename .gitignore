@@ -94,3 +94,4 @@ appsettings.json
 local.settings.json
 *.bicep
 deploy*
+__azurite*

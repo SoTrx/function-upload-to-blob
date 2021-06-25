@@ -6,6 +6,15 @@ import { env } from "process";
 // Manually load up env variables, as the func runtime would
 //require("dotenv-safe").config();
 describe("Unit test bySas", () => {
+  const localSettings = {
+    IsEncrypted: false,
+    Values: {
+      AzureWebJobsStorage: "",
+      FUNCTIONS_WORKER_RUNTIME: "node",
+      BlobStorageQS: "UseDevelopmentStorage=true",
+      InputContainer: "test",
+    },
+  };
   beforeAll(() => {
     Object.entries(localSettings.Values).forEach(
       ([key, value]) => (env[key] = value)
@@ -36,7 +45,7 @@ describe("Unit test bySas", () => {
       expect(response.status).toBe(200);
       console.log(response.body);
       expect(response.body).toBeDefined();
-    });
+    }, 10000);
   });
 });
 
