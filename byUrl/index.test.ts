@@ -4,6 +4,7 @@ import { Substitute } from "@fluffy-spoon/substitute";
 import { promises } from "fs";
 import { join } from "path";
 import * as FormData from "form-data";
+import { readFileSync } from "fs";
 describe("Should handle common errors gracefully", () => {
   it("Empty file", async () => {
     const [context, request] = formatUploadRequest("test", Buffer.alloc(0));
@@ -22,22 +23,23 @@ describe("Should handle common errors gracefully", () => {
   });
 });
 
-// This suite is non-fonctionnal, the returned form buffer from
-// form data doesn't seem to have the correct format.
-describe.skip("Should succeed to upload a file", () => {
-  it("Small file", async () => {
+
+describe("Should handle tricky scenarios", () => {
+  it("Corrupted file", async () => {
+    // Purposefully mismatching form definition and actual body.
     const form = new FormData();
     form.append(
       "test",
       await promises.readFile(join(__dirname, "../assets/hey.png"))
     );
+    const bodyBuffer = readFileSync(join(__dirname,"../assets/body-dump.dat"));
     const [context, request] = formatUploadRequest(
       "test",
-      form.getBuffer(),
+      bodyBuffer,
       form.getHeaders()
     );
     const response = await func(context, request);
-    expect(response.status).toBe(200);
+    expect(response.status).toBe(400);
   }, 20000);
 });
 

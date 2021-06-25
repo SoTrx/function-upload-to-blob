@@ -24,8 +24,12 @@ export default async function httpTrigger(
     const boundary = multipart.getBoundary(req.headers["content-type"]);
     const parts = multipart.Parse(bodyBuffer, boundary);
 
+    // The file buffer is corrupted or incomplete ?
+    if (!parts?.length)
+      return formatReply("File buffer is incorrect", HTTP_CODES.BAD_REQUEST);
+
     // Actual upload, using an output binding
-    context.bindings.storage = parts[0].data;
+    context.bindings.storage = parts[0]?.data;
   } catch (err) {
     context.log.error(err.message);
     return formatReply(err.message, HTTP_CODES.INTERNAL_SERVER_ERROR);
