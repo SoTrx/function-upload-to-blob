@@ -13,7 +13,9 @@ import {
 } from "@azure/storage-blob";
 import { v4 as uuidv4 } from "uuid";
 import HTTP_CODES from "http-status-enum";
-import { formatReply } from "../common/index";
+import { formatReply, getEnvVar } from "../common/index";
+
+const DEFAULT_HOURS_LIMIT = 24;
 
 export default async function httpTrigger(
   context: Context,
@@ -48,8 +50,20 @@ export default async function httpTrigger(
     });
     return formatReply(`Unexpected error.`, HTTP_CODES.INTERNAL_SERVER_ERROR);
   }
+
+  const hoursLimit = getEnvVar<number>(
+    "SAS_LIMIT_HOURS",
+    DEFAULT_HOURS_LIMIT,
+    context
+  );
+
   // @TODO: A "file count by ip" limit could be implemented
-  const sasKey = await generateSasKeyForClient(blobClient, inboundIp);
+  const sasKey = await generateSasKeyForClient(
+    blobClient,
+    inboundIp,
+    hoursLimit
+  );
+
   context.log.info(
     `Successfully generated SAS key for file ${filename} and ip ${inboundIp}`
   );

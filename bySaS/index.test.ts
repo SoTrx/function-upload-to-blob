@@ -2,6 +2,7 @@ import func from "./index";
 import { Context, HttpRequest } from "@azure/functions";
 import { Substitute } from "@fluffy-spoon/substitute";
 import { env } from "process";
+import { decode } from "querystring";
 // Manually load up env variables, as the func runtime would
 //require("dotenv-safe").config();
 describe("Unit test bySas", () => {
@@ -35,8 +36,16 @@ describe("Unit test bySas", () => {
     });
   });
 
-  describe("Ideal case", () => {
-    it("Basic", async () => {
+  /**
+   * Azurite must be running !
+   */
+  describe.each([
+    ["None", undefined],
+    ["SAS_LIMIT_HOURS", 6],
+  ])("Adding '%s' to env", (varName, value) => {
+    it("Full test", async () => {
+      env[varName] = String(value);
+      const DEFAULT_SAS_LIMIT = 24;
       const [context, request] = formatUploadRequest("test", null, {
         "x-forwarded-for": "1.1.1.1",
       });
@@ -44,7 +53,16 @@ describe("Unit test bySas", () => {
       expect(response.status).toBe(200);
       console.log(response.body);
       expect(response.body).toBeDefined();
-    }, 10000);
+      const qs = decode(response.body.split("?")[1]);
+      // Checking sas validity span. When not provided this value should be 24h
+      const sasValidFrom = new Date(qs.st as string);
+      const sasValidTo = new Date(qs.se as string);
+      const timeDiff = sasValidTo.getTime() - sasValidFrom.getTime();
+      expect(Math.round(timeDiff / 1000 / 3600)).toBe(
+        value ?? DEFAULT_SAS_LIMIT
+      );
+      //expect(response.body)
+    }, 15000);
   });
 });
 
