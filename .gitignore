@@ -94,4 +94,6 @@ appsettings.json
 local.settings.json
 *.bicep
 deploy*
+.vscode
+__*storage__
 __azurite*

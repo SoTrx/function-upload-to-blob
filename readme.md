@@ -72,6 +72,10 @@ See [application settings documentation](https://docs.microsoft.com/en-us/azure/
 
 ## Running tests
 
+Two types of tests are included : 
+- index.test.ts files are for unit testing, included in the coverage
+- index.e2e.test.ts files needs the function server to run (using `yarn start`). These are excluded from the coverage report. You will also need your own *localsettings.json*.
+
 ## Sample client-side service (Browser code, Typescript)
 
 ```ts

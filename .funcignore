@@ -5,3 +5,13 @@
 local.settings.json
 test
 tsconfig.json
+*.zip
+__blobstorage__
+__queuestorage__
+coverage
+deploy*
+readme.me
+yarn*.log
+.dockerignore
+.eslint*
+__azurite*

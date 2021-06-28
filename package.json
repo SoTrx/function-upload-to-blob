@@ -5,6 +5,9 @@
   "scripts": {
     "build": "tsc",
     "watch": "tsc -w",
+    "prepack": "npx shx rm -rf dist node_modules && npm install && npm run build && npm prune --production --force",
+    "pack": "tar.exe --exclude-from=.funcignore -a -c -f out.zip .",
+    "postpack": "npm install",
     "prestart": "npm run build",
     "start": "func start",
     "test": "jest",
@@ -17,6 +20,7 @@
     "uuid": "^8.3.2"
   },
   "devDependencies": {
+    "7zip-bin": "^5.1.1",
     "@azure/functions": "^1.2.3",
     "@fluffy-spoon/substitute": "^1.208.0",
     "@types/form-data": "^2.5.0",
