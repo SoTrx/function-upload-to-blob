@@ -30,7 +30,32 @@ You can also choose to deploy the function manually. To do that, you must first 
 Two **POST** endpoints are exposed, corresponding to the two upload methods. The two endpoints are using the **function** authentication method. Thus, a code has to be provided. You can retrieve this code on the portal, in the _App keys_ panel.
 
 - _/api/byUrl_ : Direct upload method. This endpoint expect a multipart/form-data input. In browsers, the native [FormData object](https://developer.mozilla.org/en-US/docs/Web/API/FormData/Using_FormData_Objects#sending_files_using_a_formdata_object) can be used to create such input.
+
+Sample request (The request body contains the Form data) :
+
+```apache
+  POST https://[func_url]/api/byUrl?filename=test&code=[func_key]
+```
+
+Sample response :
+
+```apache
+HTTP 200 - "OK"
+```
+
 - _/api/bySaS_ : Indirect upload method. Only returns a SaS url for a single blob in _InputContainer_.
+
+Sample request :
+
+```apache
+  POST https://[func_url]/api/bySaS?filename=test&code=[func_key]
+```
+
+Sample response :
+
+```json
+{ "key": "[SaSKey]" }
+```
 
 See [the provided sample](#sample-client-side-service-browser-code-typescript) for a client-side service using this function.
 
