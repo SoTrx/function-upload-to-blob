@@ -45,7 +45,8 @@ This function uses two **mandatory** variables :
 
 These **optional** variables can also be specified :
 
-- **SAS_LIMIT_HOURS** : For a SaS-based upload, how many hours keep the SaS key valid. Default is 24
+- **SAS_LIMIT_HOURS** : For a SaS-based upload, how many hours should the SaS key be valid. Default is 24
+- **SAS_IP_RANGE** : For a SaS-based upload, the IP range allowed to upload to the Blob Container. Default is any IP. The IP range must be in the format `[ipv4]-[ipv4]`.
 
 See [application settings documentation](https://docs.microsoft.com/en-us/azure/azure-functions/functions-how-to-use-azure-function-app-settings#settings) for more details.
 

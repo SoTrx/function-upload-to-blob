@@ -42,7 +42,7 @@ describe("Unit test bySas", () => {
   describe.each([
     ["None", undefined],
     ["SAS_LIMIT_HOURS", 6],
-  ])("Adding '%s' to env", (varName, value) => {
+  ])("Setting SAS_LIMIT to env", (varName, value) => {
     it("Full test", async () => {
       env[varName] = String(value);
       const DEFAULT_SAS_LIMIT = 24;
@@ -53,8 +53,9 @@ describe("Unit test bySas", () => {
       expect(response.status).toBe(200);
       console.log(response.body);
       expect(response.body).toBeDefined();
-      const qs = decode(response.body.split("?")[1]);
+
       // Checking sas validity span. When not provided this value should be 24h
+      const qs = decode(response.body.split("?")[1]);
       const sasValidFrom = new Date(qs.st as string);
       const sasValidTo = new Date(qs.se as string);
       const timeDiff = sasValidTo.getTime() - sasValidFrom.getTime();
@@ -64,6 +65,39 @@ describe("Unit test bySas", () => {
       //expect(response.body)
     }, 15000);
   });
+
+  describe.each([
+    ["None", undefined],
+    ["SAS_IP_RANGE", "176.134.171.0-176.134.171.255"],
+  ])("Setting SAS_IP_RANGE to valid values", (varName, value) => {
+    it("Full test", async () => {
+      env[varName] = String(value);
+      const DEFAULT_IP_RANGE = undefined;
+      const [context, request] = formatUploadRequest("test", null, {
+        "x-forwarded-for": "1.1.1.1",
+      });
+      const response = await func(context, request);
+      expect(response.status).toBe(200);
+      console.log(response.body);
+      expect(response.body).toBeDefined();
+      const qs = decode(response.body.split("?")[1]);
+      expect(qs.sip).toBe(value ?? DEFAULT_IP_RANGE);
+    }, 15000);
+  });
+});
+
+describe.each([
+  ["SAS_IP_RANGE", "176.134.171.0"],
+  ["SAS_IP_RANGE", "somerandomstring"],
+  ["SAS_IP_RANGE", 6],
+])("Setting SAS_IP_RANGE to invalid values", (varName, value) => {
+  it("Full test", async () => {
+    env[varName] = String(value);
+    const [context, request] = formatUploadRequest("test", null, {
+      "x-forwarded-for": "1.1.1.1",
+    });
+    expect(func(context, request)).rejects.toThrow();
+  }, 15000);
 });
 
 /**

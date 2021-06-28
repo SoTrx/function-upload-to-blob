@@ -13,9 +13,12 @@ import {
 } from "@azure/storage-blob";
 import { v4 as uuidv4 } from "uuid";
 import HTTP_CODES from "http-status-enum";
-import { formatReply, getEnvVar } from "../common/index";
+import { formatReply, getEnvVar, parseIpRange } from "../common/index";
 
+// Keep the Sas key valid 24h
 const DEFAULT_HOURS_LIMIT = 24;
+// Any ip can upload to the container by default
+const DEFAULT_IP_RANGE = "any";
 
 export default async function httpTrigger(
   context: Context,
@@ -32,6 +35,16 @@ export default async function httpTrigger(
     context.log.error(req.headers);
     return formatReply(`Malformed request`, HTTP_CODES.UNPROCESSABLE_ENTITY);
   }
+  
+  const hoursLimit = getEnvVar<number>(
+    "SAS_LIMIT_HOURS",
+    DEFAULT_HOURS_LIMIT,
+    context
+  );
+  // 176.134.171.0-176.134.171.255
+  const ipRange = getEnvVar<string>("SAS_IP_RANGE", DEFAULT_IP_RANGE, context);
+  let startIp: string, endIp: string;
+  if (ipRange !== DEFAULT_IP_RANGE) [startIp, endIp] = parseIpRange(ipRange);
 
   context.log.verbose(
     `Blob Storage QS is ${env.BlobStorageQS}. Input container is ${env.InputContainer}`
@@ -51,21 +64,15 @@ export default async function httpTrigger(
     return formatReply(`Unexpected error.`, HTTP_CODES.INTERNAL_SERVER_ERROR);
   }
 
-  const hoursLimit = getEnvVar<number>(
-    "SAS_LIMIT_HOURS",
-    DEFAULT_HOURS_LIMIT,
-    context
-  );
-
   // @TODO: A "file count by ip" limit could be implemented
   const sasKey = await generateSasKeyForClient(
     blobClient,
-    inboundIp,
+    [startIp, endIp],
     hoursLimit
   );
 
   context.log.info(
-    `Successfully generated SAS key for file ${filename} and ip ${inboundIp}`
+    `Successfully generated SAS key for file ${filename} (requester IP : ${inboundIp})`
   );
   return formatReply(JSON.stringify({ key: sasKey }));
 }
@@ -79,7 +86,7 @@ export default async function httpTrigger(
  */
 function generateSasKeyForClient(
   blobClient: BlobClient,
-  inboundIp: string,
+  ipRange: [string, string] = undefined,
   hours = 24
 ): Promise<string> {
   // Set start date to five minutes ago, to avoid some clock drifting shenaningans
@@ -90,14 +97,17 @@ function generateSasKeyForClient(
     new Date(startDate).getTime() + 1000 * 3600 * hours
   );
 
-  // Only allows the calling ip to write to the Blob for a limited amount of time
-  return blobClient.generateSasUrl({
+  const options: Record<string, unknown> = {
     startsOn: startDate,
     expiresOn: expiresDate,
-    //ipRange: { start: inboundIp, end: inboundIp },
     // Only allow the client to write to the Blob, not to read or list the container.
     permissions: BlobSASPermissions.parse("w"),
-  });
+  };
+  // Restrict the IP range if the options was specified
+  if (ipRange !== undefined)
+    options.ipRange = { start: ipRange[0], end: ipRange[1] };
+
+  return blobClient.generateSasUrl(options);
 }
 /**
  *

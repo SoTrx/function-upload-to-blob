@@ -35,3 +35,22 @@ export function getEnvVar<T>(varName: string, fallback: T, ctx: Context): T {
   }
   return envVar as unknown as T;
 }
+
+/**
+ * Ensure an ip range is something like '176.134.171.0-176.134.171.255'. Throws if the range isn't valid
+ * @param ipRange candidate ip range
+ * @returns both ip separated
+ */
+export function parseIpRange(ipRange: string): [string, string] {
+  const ipRegex = /(?=.*[^\.]$)((25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.?){4}/;
+  const ipArray = ipRange.split("-");
+  if (
+    // A range only has two IPs
+    ipArray.length !== 2 ||
+    // That must be valid IPs
+    ipArray.map((ip) => ipRegex.test(ip)).some((valid) => !valid)
+  )
+    throw new Error(`Invalid ip range provided ${ipRange}`);
+
+  return ipArray as [string, string];
+}
