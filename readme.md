@@ -1,6 +1,7 @@
 # Upload file to Blob
 
 [![codecov](https://codecov.io/gh/SoTrx/function-upload-to-blob/branch/master/graph/badge.svg?token=JOYBSR1RLZ)](https://codecov.io/gh/SoTrx/function-upload-to-blob)
+[![Deploy to Azure](https://img.shields.io/badge/Deploy%20To-Azure-blue?logo=microsoft-azure)](https://portal.azure.com/?WT.mc_id=dotnet-0000-frbouche#create/Microsoft.Template/uri/https%3A%2F%2Fgist.githubusercontent.com%2FSoTrx%2Fd108f66c1c50af5e084e71af71be99b3%2Fraw%2F022cfad8c1a9df1345215a24f38f7b38c869841b%2Fdeploy.json%0A)
 
 This Azure function allows for file uploading to a Storage container.
 
@@ -17,9 +18,12 @@ Using a function to generate a SaS key allows to circumvent this problem by lett
 
 ## Installation
 
-You must first create an [Azure Function App](https://docs.microsoft.com/en-us/azure/azure-functions/functions-get-started?pivots=programming-language-csharp). You can either :
+The **deploy to Azure button** above will deploy a Node 14 linux functionApp with its associated storage container and application insight. The code will be deployed from GH directly.
 
-- Use a **Node 14** runtime and deploy the code using [the Az CLI](https://docs.microsoft.com/fr-fr/cli/azure/functionapp?view=azure-cli-latest#az_functionapp_deploy) or the VS Code extension (CTRL + SHIFT + P -> Deploy to Function App)
+You can also choose to deploy the function manually. To do that, you must first create an [Azure Function App](https://docs.microsoft.com/en-us/azure/azure-functions/functions-get-started?pivots=programming-language-csharp). You can either :
+
+- Use a **Node 14** runtime and deploy the code using [the Az CLI](https://docs.microsoft.com/fr-fr/cli/azure/functionapp?view=azure-cli-latest#az_functionapp_deploy) , the VS Code extension (CTRL + SHIFT + P -> Deploy to Function App), or creating a new *Application Setting* (in the *Configuration* panel) with name `WEBSITE_RUN_FROM_PACKAGE` and value `https://github.com/SoTrx/function-upload-to-blob/releases/latest/download/default.function-upload-to-blob.zip`.
+  
 - Use a **Docker** runtime and then put _dockerutils/function-upload-to-blob_ in _Container Settings_ once the Function App is created.
 
 ## Usage
@@ -72,9 +76,10 @@ See [application settings documentation](https://docs.microsoft.com/en-us/azure/
 
 ## Running tests
 
-Two types of tests are included : 
+Two types of tests are included :
+
 - index.test.ts files are for unit testing, included in the coverage
-- index.e2e.test.ts files needs the function server to run (using `yarn start`). These are excluded from the coverage report. You will also need your own *localsettings.json*.
+- index.e2e.test.ts files needs the function server to run (using `yarn start`). These are excluded from the coverage report. You will also need your own _localsettings.json_.
 
 ## Sample client-side service (Browser code, Typescript)
 
