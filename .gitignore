@@ -97,3 +97,4 @@ deploy*
 .vscode
 __*storage__
 __azurite*
+*.zip

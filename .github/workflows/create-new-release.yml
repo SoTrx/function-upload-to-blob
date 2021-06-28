@@ -20,7 +20,7 @@ jobs:
         uses: actions/checkout@v2
 
       - name: Install all dependencies && Generate zip
-        run: npm pack
+        run: npm run pack
 
       - name: Create Release
         id: create_release
@@ -39,4 +39,4 @@ jobs:
           upload_url: ${{ steps.create_release.outputs.upload_url }}
           asset_path: ./out.zip
           asset_name: ./function-upload-to-blob.zip
-          asset_content_type: application/octet-stream
+          asset_content_type: application/zip

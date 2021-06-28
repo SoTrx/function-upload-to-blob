@@ -11,6 +11,7 @@
     "prestart": "npm run build",
     "start": "func start",
     "test": "jest",
+    "release": "git tag v$npm_package_version && git push && git push --tags",
     "test:coverage": "jest --coverage"
   },
   "dependencies": {
