@@ -38,10 +38,14 @@ See [the provided sample](#sample-client-side-service-browser-code-typescript) f
 
 ## Configuration
 
-This function uses two variables :
+This function uses two **mandatory** variables :
 
 - **BlobStorageQS** : The connection string for the storage account to use
 - **InputContainer** : The storage account container to upload the file into
+
+These **optional** variables can also be specified :
+
+- **SAS_LIMIT_HOURS** : For a SaS-based upload, how many hours keep the SaS key valid. Default is 24
 
 See [application settings documentation](https://docs.microsoft.com/en-us/azure/azure-functions/functions-how-to-use-azure-function-app-settings#settings) for more details.
 
