@@ -18,17 +18,16 @@ Using a function to generate a SaS key allows to circumvent this problem by lett
 
 ## Installation
 
-The **deploy to Azure button** above will deploy a Node 14 linux functionApp with its associated storage container and application insight. The code will be deployed from GH directly.
+The **deploy to Azure button** above will deploy a Node 14 linux functionApp with its associated storage container and application insight. The code will be deployed from GH directly. All the necessary environment variables are set, this should work out of the box.
 
 You can also choose to deploy the function manually. To do that, you must first create an [Azure Function App](https://docs.microsoft.com/en-us/azure/azure-functions/functions-get-started?pivots=programming-language-csharp). You can either :
 
-- Use a **Node 14** runtime and deploy the code using [the Az CLI](https://docs.microsoft.com/fr-fr/cli/azure/functionapp?view=azure-cli-latest#az_functionapp_deploy) , the VS Code extension (CTRL + SHIFT + P -> Deploy to Function App), or creating a new *Application Setting* (in the *Configuration* panel) with name `WEBSITE_RUN_FROM_PACKAGE` and value `https://github.com/SoTrx/function-upload-to-blob/releases/latest/download/default.function-upload-to-blob.zip`.
-  
+- Use a **Node 14** runtime and deploy the code using [the Az CLI](https://docs.microsoft.com/fr-fr/cli/azure/functionapp?view=azure-cli-latest#az_functionapp_deploy) , the VS Code extension (CTRL + SHIFT + P -> Deploy to Function App), or creating a new _Application Setting_ (in the _Configuration_ panel) with name `WEBSITE_RUN_FROM_PACKAGE` and value `https://github.com/SoTrx/function-upload-to-blob/releases/latest/download/default.function-upload-to-blob.zip`.
 - Use a **Docker** runtime and then put _dockerutils/function-upload-to-blob_ in _Container Settings_ once the Function App is created.
 
 ## Usage
 
-Two **POST** endpoints are exposed, corresponding to the two upload methods.
+Two **POST** endpoints are exposed, corresponding to the two upload methods. The two endpoints are using the **function** authentication method. Thus, a code has to be provided. You can retrieve this code on the portal, in the _App keys_ panel.
 
 - _/api/byUrl_ : Direct upload method. This endpoint expect a multipart/form-data input. In browsers, the native [FormData object](https://developer.mozilla.org/en-US/docs/Web/API/FormData/Using_FormData_Objects#sending_files_using_a_formdata_object) can be used to create such input.
 - _/api/bySaS_ : Indirect upload method. Only returns a SaS url for a single blob in _InputContainer_.
@@ -73,6 +72,10 @@ See [application settings documentation](https://docs.microsoft.com/en-us/azure/
   "scriptFile": "../dist/byUrl/index.js"
 }
 ```
+
+### CORS
+
+Using this with a frontend app, you'll have to setup CORS **in the functionApp AND the blob container** in the corresponding section of the portal. Required methods are POST, OPTIONS, and PUT.
 
 ## Running tests
 
