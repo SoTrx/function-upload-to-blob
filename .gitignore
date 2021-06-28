@@ -93,7 +93,7 @@ obj
 appsettings.json
 local.settings.json
 *.bicep
-deploy*
+deploy-by-code.json
 .vscode
 __*storage__
 __azurite*

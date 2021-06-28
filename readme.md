@@ -1,7 +1,7 @@
 # Upload file to Blob
 
 [![codecov](https://codecov.io/gh/SoTrx/function-upload-to-blob/branch/master/graph/badge.svg?token=JOYBSR1RLZ)](https://codecov.io/gh/SoTrx/function-upload-to-blob)
-[![Deploy to Azure](https://img.shields.io/badge/Deploy%20To-Azure-blue?logo=microsoft-azure)](https://portal.azure.com/?WT.mc_id=dotnet-0000-frbouche#create/Microsoft.Template/uri/https%3A%2F%2Fgist.githubusercontent.com%2FSoTrx%2Fd108f66c1c50af5e084e71af71be99b3%2Fraw%2F022cfad8c1a9df1345215a24f38f7b38c869841b%2Fdeploy.json%0A)
+[![Deploy to Azure](https://img.shields.io/badge/Deploy%20To-Azure-blue?logo=microsoft-azure)](https://portal.azure.com/?WT.mc_id=dotnet-0000-frbouche#create/Microsoft.Template/uri/https%3A%2F%2Fraw.githubusercontent.com%2FSoTrx%2Ffunction-upload-to-blob%2Fmaster%2Fdeploy.json)
 
 This Azure function allows for file uploading to a Storage container.
 
